@@ -59,6 +59,6 @@ npm run lint
 
 ## Vercel Deployment
 
-[Link to the vercel deployment](https://rendu-git-en-entreprise.vercel.app/)
+[Link to the vercel deployment](...)
 
 To deploy the project, we used Vercel. We created a CI/CD pipeline that runs the tests and the linter before deploying the project. The project is deployed on every push with the following tag: `V.*`.
