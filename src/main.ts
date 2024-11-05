@@ -1,3 +1,4 @@
+import { setupCalculator } from './calculator';
 import './style.css';
 
 document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
@@ -18,10 +19,12 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
     </select>
     <input
       type="number"
-      id="x"
+      id="y"
       class="bg-neutral-700 border border-neutral-500 rounded p-2 w-24"
     />
     <span>&#61;</span>
     <span id="result" class="bg-neutral-700 border border-neutral-500 rounded p-2"></span>
   </div>
 `;
+
+setupCalculator();
