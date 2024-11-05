@@ -2,7 +2,7 @@ import { setupCalculator } from './calculator';
 import './style.css';
 
 document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
-  <div>
+    <h1 class="text-3xl font-bold">Calculator</h1>
     <input
       type="number"
       id="x"
