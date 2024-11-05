@@ -3,40 +3,30 @@ on:
   push:
     tags:
       - 'V.*'
-    branches:
-      - main
 jobs:
   Install:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3  
 
       - name: Set up Node.js
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v4  
         with:
           node-version: '18'
 
       - name: Install dependencies
         run: npm install
 
-      - name: Cache node_modules
-        uses: actions/cache@v4
-        with:
-          path: node_modules
-          key: ${{ runner.os }}-node_modules-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node_modules-${{ hashFiles('**/package-lock.json') }}
-
   Test:
-    depends-on: Install
+    needs: Install
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Set up Node.js
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v4
         with:
           node-version: '18'
 
@@ -47,14 +37,14 @@ jobs:
         run: npm test
 
   Lint: 
-    depends-on: Install
+    needs: Install
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Set up Node.js
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v4
         with:
           node-version: '18'
 
@@ -62,53 +52,55 @@ jobs:
         run: npm install
 
       - name: Lint
-        run: npm lint
+        run: npm run lint
 
   Build:
-    depends-on: Install
+    needs: [Install, Lint, Test]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '18'
- 
-      - name: Restore node_modules cache
-        uses: actions/cache@v4
-        with:
-          path: node_modules
-          key: ${{ runner.os }}-node_modules-${{ hashFiles('**/package-lock.json') }}
- 
+
+      - name: Install dependencies
+        run: npm install
+
       - name: Build
         run: npm run build
 
       - name: Archive production artifacts
         uses: actions/upload-artifact@v3
+        if: github.actor != 'nektos/act'
         with:
           name: build
-          dist: dist/
+          path: dist/
           retention-days: 1
   
   Deploy:
-    depends-on: Build
-    runs-on: ubuntu-latest
     needs: Build
+    runs-on: ubuntu-latest
+    
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '18'
       
+      - name: Install dependencies
+        run: npm install
+
       - name: Download production artifacts
         uses: actions/download-artifact@v3
         with:
           name: build
+          path: dist/
     
       - name: Install Vercel CLI
         run: npm install -g vercel
@@ -117,6 +109,3 @@ jobs:
         run: vercel deploy --prod --yes --token=${{ secrets.VERCEL_TOKEN }}
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-         
-          
-  
